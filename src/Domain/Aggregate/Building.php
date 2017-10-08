@@ -46,7 +46,7 @@ final class Building extends AggregateRoot
 
     public function whenNewBuildingWasRegistered(NewBuildingWasRegistered $event)
     {
-        $this->uuid = $event->uuid();
+        $this->uuid = Uuid::fromString($event->aggregateId());
         $this->name = $event->name();
     }
 
