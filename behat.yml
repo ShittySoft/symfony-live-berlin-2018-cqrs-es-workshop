@@ -1,0 +1,7 @@
+default:
+  suites:
+    building:
+      contexts:
+        - 'Specification\CheckInCheckOut'
+      paths:
+        - 'feature/check-in-check-out.feature'
