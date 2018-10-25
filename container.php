@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Building\App;
 
+use Building\Domain\DomainEvent;
 use Bernard\Driver\FlatFileDriver;
 use Bernard\Producer;
 use Bernard\Queue;
@@ -220,6 +221,27 @@ return new ServiceManager([
 
                 $buildings->store($building);
             };
+        },
+        Command\AlertSecurity::class => function () : callable {
+            return function (Command\AlertSecurity $command) : void {
+                error_log(sprintf(
+                    'Security breach by %s in %s',
+                    $command->username(),
+                    $command->buildingId()->toString()
+                ));
+            };
+        },
+        DomainEvent\CheckInAnomalyDetected::class . '-listeners' => function (ContainerInterface $container) : array {
+            $commandBus = $container->get(CommandBus::class);
+
+            return [
+                function (DomainEvent\CheckInAnomalyDetected $event) use ($commandBus) : void {
+                    $commandBus->dispatch(Command\AlertSecurity::ofBreachInBuilding(
+                        $event->buildingId(),
+                        $event->username()
+                    ));
+                },
+            ];
         },
         BuildingRepositoryInterface::class => function (ContainerInterface $container) : BuildingRepositoryInterface {
             return new BuildingRepository(
