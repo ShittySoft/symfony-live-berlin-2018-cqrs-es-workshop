@@ -1,6 +1,6 @@
 {
   "require": {
-    "php": "^7.0",
+    "php": "^7.1",
     "ext-pdo": "*",
     "ext-pdo_sqlite": "*",
     "bernard/bernard": "^1.0@DEV",

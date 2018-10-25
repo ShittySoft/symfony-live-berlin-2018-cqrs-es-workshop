@@ -21,7 +21,7 @@ final class BuildingRepository implements BuildingRepositoryInterface
         $this->aggregateRepository = $aggregateRepository;
     }
 
-    public function add(Building $building)
+    public function store(Building $building)
     {
         $this->aggregateRepository->addAggregateRoot($building);
     }
