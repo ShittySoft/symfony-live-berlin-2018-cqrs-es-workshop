@@ -44,7 +44,10 @@ final class Building extends AggregateRoot
 
     public function checkOutUser(string $username) : void
     {
-        // @TODO to be implemented
+        $this->recordThat(DomainEvent\UserCheckedOut::ofBuilding(
+            $this->uuid,
+            $username
+        ));
     }
 
     protected function whenNewBuildingWasRegistered(DomainEvent\NewBuildingWasRegistered $event) : void
@@ -54,6 +57,11 @@ final class Building extends AggregateRoot
     }
 
     protected function whenUserCheckedIn(DomainEvent\UserCheckedIn $event) : void
+    {
+        // empty on purpose
+    }
+
+    protected function whenUserCheckedOut(DomainEvent\UserCheckedOut $event) : void
     {
         // empty on purpose
     }
