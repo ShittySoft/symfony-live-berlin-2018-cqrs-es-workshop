@@ -39,36 +39,36 @@ final class Building extends AggregateRoot
 
     public function checkInUser(string $username) : void
     {
-        if (array_key_exists($username, $this->checkedInUsers)) {
-            throw new \LogicException(sprintf(
-                'User %s is already checked into %s (%s)',
-                $username,
-                $this->name,
-                $this->uuid->toString()
-            ));
-        }
+        $anomaly = array_key_exists($username, $this->checkedInUsers);
 
         $this->recordThat(DomainEvent\UserCheckedIn::toBuilding(
             $this->uuid,
             $username
         ));
+
+        if ($anomaly) {
+            $this->recordThat(DomainEvent\CheckInAnomalyDetected::inBuilding(
+                $this->uuid,
+                $username
+            ));
+        }
     }
 
     public function checkOutUser(string $username) : void
     {
-        if (! array_key_exists($username, $this->checkedInUsers)) {
-            throw new \LogicException(sprintf(
-                'User %s is not checked into %s (%s)',
-                $username,
-                $this->name,
-                $this->uuid->toString()
-            ));
-        }
+        $anomaly = ! array_key_exists($username, $this->checkedInUsers);
 
         $this->recordThat(DomainEvent\UserCheckedOut::ofBuilding(
             $this->uuid,
             $username
         ));
+
+        if ($anomaly) {
+            $this->recordThat(DomainEvent\CheckInAnomalyDetected::inBuilding(
+                $this->uuid,
+                $username
+            ));
+        }
     }
 
     protected function whenNewBuildingWasRegistered(DomainEvent\NewBuildingWasRegistered $event) : void
@@ -85,6 +85,11 @@ final class Building extends AggregateRoot
     protected function whenUserCheckedOut(DomainEvent\UserCheckedOut $event) : void
     {
         unset($this->checkedInUsers[$event->username()]);
+    }
+
+    protected function whenCheckInAnomalyDetected(DomainEvent\CheckInAnomalyDetected $event) : void
+    {
+        // unused
     }
 
     /**
